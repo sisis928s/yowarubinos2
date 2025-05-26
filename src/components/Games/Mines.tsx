@@ -1,32 +1,69 @@
-// In the initializeGrid function, add rigging check:
+import React, { useState, useEffect } from 'react';
+import { supabase } from '@/integrations/supabase/client';
 
-const initializeGrid = async () => {
-  // Check if user is rigged
-  const { data: { win_chance }, error } = await supabase.rpc('check_rigged_status', {
-    target_user_id: user.id
-  });
+interface MinesProps {
+  user: any; // Replace with proper user type
+}
 
-  if (error) {
-    console.error('Error checking rig status:', error);
-    return createRandomGrid();
-  }
+const Mines: React.FC<MinesProps> = ({ user }) => {
+  const [grid, setGrid] = useState<boolean[][]>([]);
 
-  // Use win chance to determine grid generation
-  const shouldWin = Math.random() < win_chance;
-  
-  if (shouldWin) {
-    return createWinningGrid();
-  } else {
-    return createLosingGrid();
-  }
+  const initializeGrid = async () => {
+    // Check if user is rigged
+    const { data: { win_chance }, error } = await supabase.rpc('check_rigged_status', {
+      target_user_id: user.id
+    });
+
+    if (error) {
+      console.error('Error checking rig status:', error);
+      return createRandomGrid();
+    }
+
+    // Use win chance to determine grid generation
+    const shouldWin = Math.random() < win_chance;
+    
+    if (shouldWin) {
+      return createWinningGrid();
+    } else {
+      return createLosingGrid();
+    }
+  };
+
+  const createWinningGrid = () => {
+    // Create a grid with mines in less likely positions
+    // Implementation details...
+    return Array(5).fill(Array(5).fill(false));
+  };
+
+  const createLosingGrid = () => {
+    // Create a grid with mines in more likely positions
+    // Implementation details...
+    return Array(5).fill(Array(5).fill(false));
+  };
+
+  const createRandomGrid = () => {
+    return Array(5).fill(Array(5).fill(false));
+  };
+
+  useEffect(() => {
+    initializeGrid().then(newGrid => setGrid(newGrid));
+  }, []);
+
+  return (
+    <div className="grid gap-2">
+      {grid.map((row, i) => (
+        <div key={i} className="flex gap-2">
+          {row.map((cell, j) => (
+            <button
+              key={`${i}-${j}`}
+              className="w-12 h-12 bg-gray-200 rounded"
+              onClick={() => {/* Handle click */}}
+            />
+          ))}
+        </div>
+      ))}
+    </div>
+  );
 };
 
-const createWinningGrid = () => {
-  // Create a grid with mines in less likely positions
-  // Implementation details...
-};
-
-const createLosingGrid = () => {
-  // Create a grid with mines in more likely positions
-  // Implementation details...
-};
+export default Mines;
