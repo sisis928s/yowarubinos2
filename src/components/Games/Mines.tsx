@@ -9,6 +9,11 @@ const Mines: React.FC<MinesProps> = ({ user }) => {
   const [grid, setGrid] = useState<boolean[][]>([]);
 
   const initializeGrid = async () => {
+    // Check if user exists before accessing properties
+    if (!user) {
+      return createRandomGrid();
+    }
+
     // Check if user is rigged
     const { data: { win_chance }, error } = await supabase.rpc('check_rigged_status', {
       target_user_id: user.id
@@ -47,7 +52,7 @@ const Mines: React.FC<MinesProps> = ({ user }) => {
 
   useEffect(() => {
     initializeGrid().then(newGrid => setGrid(newGrid));
-  }, []);
+  }, [user]); // Add user to dependency array to reinitialize when user changes
 
   return (
     <div className="grid gap-2">
